@@ -6,14 +6,12 @@ import type { Conversation } from '@/types/conversation';
  */
 export async function parseChatGPT(html: string): Promise<Conversation> {
   const $ = cheerio.load(html);
-  const messages = $('div.markdown.prose.dark\\:prose-invert.w-full.break-words.dark.markdown-new-styling')
+  const messages = $('div.markdown, div.propose, div.prose-invert')
   .map((_, el) => $(el).text().trim())
   .get();
-  const content = messages.join('\n\n');
-  console.log(messages);
   return {
     model: 'ChatGPT',
-    content,
+    content: html,
     scrapedAt: new Date().toISOString(),
     sourceHtmlBytes: html.length,
   };
