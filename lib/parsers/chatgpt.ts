@@ -6,7 +6,7 @@ import type { Conversation } from '@/types/conversation';
  */
 export async function parseChatGPT(html: string): Promise<Conversation> {
   const $ = cheerio.load(html);
-  const conversations = $('div.markdown.prose p')
+  const conversations = $('div.markdown')
   .map((_, el) => $(el).text().trim())
   .get();
   const content = conversations.join('\n\n');
