@@ -9,9 +9,10 @@ export async function parseChatGPT(html: string): Promise<Conversation> {
   const messages = $('div.markdown, div.propose, div.prose-invert')
   .map((_, el) => $(el).text().trim())
   .get();
+  const content = messages.join('\n\n');
   return {
     model: 'ChatGPT',
-    content: html,
+    content,
     scrapedAt: new Date().toISOString(),
     sourceHtmlBytes: html.length,
   };
