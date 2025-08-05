@@ -1,5 +1,5 @@
 {
-  "name": "MemoAI",
+  "name": "memoai",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -39,5 +39,21 @@
     "tailwindcss": "^4",
     "tw-animate-css": "^1.2.9",
     "typescript": "^5"
-  }
+  },
+  "description": "This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).",
+  "main": "express.js",
+  "directories": {
+    "lib": "lib"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/juanv8964/MemoAI.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/juanv8964/MemoAI/issues"
+  },
+  "homepage": "https://github.com/juanv8964/MemoAI#readme"
 }
