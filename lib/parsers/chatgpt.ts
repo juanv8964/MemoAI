@@ -3,26 +3,24 @@ import type { Conversation } from '@/types/conversation';
 
 /**
  * Extracts a ChatGPT share page into a structured Conversation.
- * Keeps readable formatting (paragraphs, lists, headings) without Turndown.
  */
 
 export async function parseChatGPT(html: string): Promise<Conversation> {
   const $ = cheerio.load(html);
 
-  const articles = $('article[data-testid^="conversation-turn"]').toArray();
+  const conversation = $('article[data-testid^="conversation-turn"]').toArray();
 
-  const turns = articles
+  const turns = conversation
     .map((el) => {
-      const $article = $(el);
-      const $content = $article.find('.markdown, .prose').first().clone();
-
+      const $el = $(el);
+      const $content = $el.clone();
       $content.find('img, svg, button, [role="img"], a:has(img)').remove();
 
       const text = $content.text().replace(/\n{3,}/g, '\n\n').trim();
       if (!text) return null;
       if (/is this conversation helpful/i.test(text)) return null;
 
-      const turn = $article.attr('data-turn'); // 'user' or 'assistant'
+      const turn = $el.attr('data-turn');
       const speaker = turn === 'user' ? 'You' : 'ChatGPT';
 
       return `${speaker}: ${text}`;
