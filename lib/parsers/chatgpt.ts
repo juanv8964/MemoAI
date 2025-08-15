@@ -7,46 +7,33 @@ import type { Conversation } from '@/types/conversation';
 
 export async function parseChatGPT(html: string): Promise<Conversation> {
   const $ = cheerio.load(html);
+  const conversations: string[] = [];
+  $('[data-testid^="conversation-turn"]').each((_, el) => {
+    const testid = $(el).attr('data-testid') || '';
+    const role = testid.includes('-1') || testid.endsWith('-1')
+      ? 'I said:'
+      : 'ChatGPT said:';
 
-  const articles = $('article[data-testid^="conversation-turn"]').toArray();
+    let raw = $(el).html() || '';
 
-  const turns = articles
-    .map((node) => {
-      const $article = $(node);
+    raw = raw
+      .replace(/<br\s*\/?>/gi, '\n')
+      .replace(/<\/p>\s*/gi, '\n\n')
+      .replace(/<li[^>]*>\s*/gi, '\n- ')
+      .replace(/<\/li>\s*/gi, '\n')
+      .replace(/<\/(ul|ol)>\s*/gi, '\n')
+      .replace(/<h[1-6][^>]*>\s*/gi, '\n\n')
+      .replace(/<\/h[1-6]>\s*/gi, '\n\n');
 
-      const turn = $article.attr('data-turn') || '';
-      const speaker = turn === 'user' ? 'You' : 'ChatGPT';
+    let text = cheerio.load(raw).text();
+    text = text.replace(/\n{3,}/g, '\n\n').trim();
 
-      const $body = $article.find('.markdown, .prose').first();
-      let raw = $body.html() || $article.html() || '';
+    if (!text) return;
 
-      raw = raw
-        .replace(/<br\s*\/?>/gi, '\n')        
-        .replace(/<\/p>\s*/gi, '\n\n')           
-        .replace(/<li[^>]*>\s*/gi, '\n- ')         
-        .replace(/<\/li>\s*/gi, '\n')
-        .replace(/<\/(ul|ol)>\s*/gi, '\n')
-        .replace(/<h[1-6][^>]*>\s*/gi, '\n\n')   
-        .replace(/<\/h[1-6]>\s*/gi, '\n\n');
+    conversations.push(`${role}: ${text}`);
+  });
 
-      const text = cheerio
-        .load(raw)('body')
-        .text()
-        .replace(/\u00A0/g, ' ')      
-        .replace(/\r/g, '')
-        .replace(/[ \t]+\n/g, '\n')
-        .replace(/\n{3,}/g, '\n\n')          
-        .trim()
-        // New addition: Handle inline asterisk lists by inserting newlines after periods before next items.
-        // This matches patterns like "desc. * Next" and turns them into "desc.\n* Next".
-        // Adjust the regex if your responses have different separators (e.g., semicolons instead of periods).
-        .replace(/\. \*\s*/g, '.\n* ');
-
-      return `${speaker}:\n${text}`;
-    })
-    .filter(Boolean) as string[];
-
-  const content = turns.join('\n\n---\n\n');
+  const content = conversations.join('\n\n');
 
   return {
     model: 'ChatGPT',
