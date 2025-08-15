@@ -8,54 +8,30 @@ import type { Conversation } from '@/types/conversation';
 export async function parseChatGPT(html: string): Promise<Conversation> {
   const $ = cheerio.load(html);
 
-  const nodes = $(
-    'article[data-testid^="conversation-turn"], article[data-testid="conversation-turn"]'
-  ).toArray();
+  const conversations = $(
+    'article[data-testid^="conversation-turn"] .markdown,' +
+    'article[data-testid="conversation-turn"] .prose'
+  );
 
-  const parts = nodes
+  const nodes = $(conversations).toArray();
+
+  const removingParts = nodes
     .map((el) => {
       const $el = $(el);
+      const $copy = $el.clone();
 
-      const roleAttr = ($el.attr('data-turn') || ($el.data('turn') as string) || '').toString();
-      const speaker = /user/i.test(roleAttr) ? 'You' : 'ChatGPT';
+      $copy.find('img, svg, button, [role="img"], a:has(img)').remove();
 
-      const $body = speaker === 'You' ? $el.find('.whitespace-pre-wrap, [data-message-author-role="user"]').first()
-      : $el.find('.markdown, .prose').first();
-      const $copy = ($body.length ? $body : $el).clone();
+      const text = $copy.text().replace(/\n{3,}/g, '\n\n').trim();
 
-      $copy
-        .find('img, svg, button, [role="img"], a:has(img)')
-        .remove()
-        .end()
-        .find('[aria-live], [data-testid="conversation-action"], [data-testid="feedback"], footer')
-        .remove();
+      const turn = $el.closest('article').attr('data-turn');
+      const speaker = turn === 'user' ? 'You' : 'ChatGPT';
 
-      let htmlChunk = $copy.html() || '';
-
-      htmlChunk = htmlChunk
-        .replace(/<br\s*\/?>/gi, '\n')
-        .replace(/<\/p>/gi, '\n\n')
-        .replace(/<li[^>]*>/gi, '- ')
-        .replace(/<\/li>/gi, '\n')
-        .replace(/<\/ul>|<\/ol>/gi, '\n')
-        .replace(/<h[1-6][^>]*>/gi, '\n\n')
-        .replace(/<\/h[1-6]>/gi, '\n\n');
-
-      const text = cheerio
-        .load(htmlChunk)
-        .text()
-        .replace(/\u00A0/g, ' ')
-        .replace(/[ \t]+\n/g, '\n')
-        .replace(/\n{3,}/g, '\n\n')
-        .trim();
-
-      if (!text || /is this conversation helpful/i.test(text)) return null;
-
-      return `${speaker}: ${text}`;
+      return `**${speaker}:** ${text}`;
     })
     .filter(Boolean) as string[];
 
-  const content = parts.join('\n\n');
+  const content = removingParts.join('\n\n---\n\n');
 
   return {
     model: 'ChatGPT',
