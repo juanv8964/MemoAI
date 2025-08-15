@@ -7,13 +7,13 @@ import TurndownService from 'turndown';
 const turndownservice = new TurndownService();
 export async function parseChatGPT(html: string): Promise<Conversation> {
   const $ = cheerio.load(html);
-  const conversations = $('[data-testid]')
+  const conversations = $('article[data-testid^="conversation-turn"]')
   .map((_, el) =>{
   const rawHTML = $(el).html() || '';
    return turndownservice.turndown(rawHTML);
   })
   .get();
-  const content = conversations.join('\n\n');
+  const content = conversations.join('\n\n---\n\n');
   return {
     model: 'ChatGPT',
     content,
