@@ -22,12 +22,12 @@ export async function parseChatGPT(html: string): Promise<Conversation> {
 
       raw = raw
         .replace(/<br\s*\/?>/gi, '\n')        
-        .replace(/<\/p>/gi, '\n\n')           
-        .replace(/<li[^>]*>/gi, '- ')         
-        .replace(/<\/li>/gi, '\n')
-        .replace(/<\/ul>|<\/ol>/gi, '\n')
-        .replace(/<h[1-6][^>]*>/gi, '\n\n')   
-        .replace(/<\/h[1-6]>/gi, '\n\n');
+        .replace(/<\/p>\s*/gi, '\n\n')           
+        .replace(/<li[^>]*>\s*/gi, '\n- ')         
+        .replace(/<\/li>\s*/gi, '\n')
+        .replace(/<\/(ul|ol)>\s*/gi, '\n')
+        .replace(/<h[1-6][^>]*>\s*/gi, '\n\n')   
+        .replace(/<\/h[1-6]>\s*/gi, '\n\n');
 
       const text = cheerio
         .load(raw)('body')
@@ -38,11 +38,11 @@ export async function parseChatGPT(html: string): Promise<Conversation> {
         .replace(/\n{3,}/g, '\n\n')          
         .trim();
 
-      return `${speaker}: ${text}`;
+      return `${speaker}:\n${text}`;
     })
     .filter(Boolean) as string[];
 
-  const content = turns.join('\n\n');
+  const content = turns.join('\n\n---\n\n');
 
   return {
     model: 'ChatGPT',
