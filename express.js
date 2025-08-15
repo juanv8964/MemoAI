@@ -1,6 +1,9 @@
 import express from 'express';
 import bodyParser from 'body-parser';
 import cors from 'cors';
+import { createConversationRecord} from '@/lib/db/conversations';
+import { S3Client } from '@/lib/storage/s3';
+import { type } from 'express/lib/response';
 
 const app = express();
 const PORT = 8000;
@@ -40,6 +43,9 @@ const tools = {
     }
     return `Result: ${args.a * args.b}`;
   }
+  save: (args) => {
+    
+  }
 };
 
 // Tool schemas
@@ -78,6 +84,19 @@ const toolSchemas = [
       },
       required: ['a', 'b']
     }
+  },
+  {
+  name: 'saveConversation',
+  description: 'Save a conversation to my s3 and postgresql',
+  inputSchema: {
+  type: 'object',
+  properties: {
+    model: {type: 'string', description: 'model used'}
+    messages:{ type: 'string', description: 'Conversation content to save'},
+
+
+  }
+  }
   }
 ];
 
