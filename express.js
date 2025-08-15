@@ -42,8 +42,13 @@ const tools = {
       throw new Error('Parameters a and b must be numbers');
     }
     return `Result: ${args.a * args.b}`;
-  }
-  save: (args) => {
+  },
+
+  saveconversation: async (args) => {
+    const { content } = args || {};
+    if(typeof content !== 'string' || content.trim()){
+      throw new Error('content must be a string and not be empty');
+    }
     
   }
 };
@@ -86,17 +91,15 @@ const toolSchemas = [
     }
   },
   {
-  name: 'saveConversation',
-  description: 'Save a conversation to my s3 and postgresql',
+  name: 'saveconversation',
+  description: 'Save a conversation to my s3',
   inputSchema: {
   type: 'object',
   properties: {
-    model: {type: 'string', description: 'model used'}
-    messages:{ type: 'string', description: 'Conversation content to save'},
-
-
+    content: { type: 'string', description: 'Conversation content to save to s3'},
   }
-  }
+  },
+  require:{content}
   }
 ];
 
