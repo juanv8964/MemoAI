@@ -5,30 +5,31 @@ import type { Conversation } from '@/types/conversation';
  * Extracts a ChatGPT share page into a structured Conversation.
  * Keeps readable formatting (paragraphs, lists, headings) without Turndown.
  */
+
 export async function parseChatGPT(html: string): Promise<Conversation> {
   const $ = cheerio.load(html);
 
-  const conversations = $(
-    'article[data-testid^="conversation-turn"] .markdown,' +
-    'article[data-testid="conversation-turn"] .prose'
-  ).toArray();
+  const articles = $('article[data-testid^="conversation-turn"]').toArray();
 
-  const nodes = conversations.map((el) => {
-    const $el = $(el);
-    const $copy = $el.clone();
+  const turns = articles
+    .map((el) => {
+      const $article = $(el);
+      const $content = $article.find('.markdown, .prose').first().clone();
 
-      $copy.find('img, svg, button, [role="img"], a:has(img)').remove();
+      $content.find('img, svg, button, [role="img"], a:has(img)').remove();
 
-      const text = $copy.text().replace(/\n{3,}/g, '\n\n').trim();
+      const text = $content.text().replace(/\n{3,}/g, '\n\n').trim();
+      if (!text) return null;
+      if (/is this conversation helpful/i.test(text)) return null;
 
-      const turn = $el.closest('article').attr('data-turn');
+      const turn = $article.attr('data-turn'); // 'user' or 'assistant'
       const speaker = turn === 'user' ? 'You' : 'ChatGPT';
 
-      return `**${speaker}:**\n\n${text}`;
+      return `${speaker}: ${text}`;
     })
     .filter(Boolean) as string[];
 
-  const content = nodes.join('\n\n---\n\n');
+  const content = turns.join('\n\n---\n\n');
 
   return {
     model: 'ChatGPT',
