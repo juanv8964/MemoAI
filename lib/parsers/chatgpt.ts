@@ -36,7 +36,11 @@ export async function parseChatGPT(html: string): Promise<Conversation> {
         .replace(/\r/g, '')
         .replace(/[ \t]+\n/g, '\n')
         .replace(/\n{3,}/g, '\n\n')          
-        .trim();
+        .trim()
+        // New addition: Handle inline asterisk lists by inserting newlines after periods before next items.
+        // This matches patterns like "desc. * Next" and turns them into "desc.\n* Next".
+        // Adjust the regex if your responses have different separators (e.g., semicolons instead of periods).
+        .replace(/\. \*\s*/g, '.\n* ');
 
       return `${speaker}:\n${text}`;
     })
