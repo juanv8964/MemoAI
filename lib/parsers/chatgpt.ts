@@ -10,7 +10,7 @@ export async function parseChatGPT(html: string): Promise<Conversation> {
   const nodes = $(conversations).toArray();
   const removingParts = nodes.map((el) => {
     const $el = $(el);
-    const $copy = $(el).clone();
+    const $copy = $el.clone();
     $copy.find('img, svg, button, [role="img"], a:has(img)').remove();
     const text = $copy.text().replace(/\n{3,}/g,  '\n\n').trim();
     const turn = $(el).closest('article').attr('data-turn');
