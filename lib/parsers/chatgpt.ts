@@ -8,11 +8,7 @@ export async function parseChatGPT(html: string): Promise<Conversation> {
   const $ = cheerio.load(html);
 
   const conversation = $('[data-testid^="conversation-turn"]')
-  .map((_, el) => {
-    const contentDiv = $(el).find('.whitespace-pre-wrap');
-    return contentDiv.text();
-
-  })
+  .map((_, el)=> $(el).text())
   .get();
   const content = conversation.join('\n');
 
