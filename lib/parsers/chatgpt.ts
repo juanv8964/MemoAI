@@ -8,14 +8,14 @@ export async function parseChatGPT(html: string): Promise<Conversation> {
   const $ = cheerio.load(html);
 
   const conversation = $('[data-testid^="conversation-turn"]')
-  .map((_, el) => $(el).text().trim())
-  .get();
-  const merged = [];
-  for (let i = 0; i < Math.max(conversation.length); i++){
-    if(conversation[i]) merged.push(conversation[i]);
+  .map((_, el) => {
+    const contentDiv = $(el).find('.whitespace-pre-wrap');
+    contentDiv.find('br').replaceWith('\n');
+    return contentDiv.text().trim();
 
-  }
-  const content = merged.join('\n');
+  })
+  .get();
+  const content = conversation.join('\n');
 
   return {
     model: 'ChatGPT',
