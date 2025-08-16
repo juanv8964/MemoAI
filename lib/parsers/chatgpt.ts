@@ -11,7 +11,7 @@ export async function parseChatGPT(html: string): Promise<Conversation> {
   .map((_, el) => {
     const contentDiv = $(el).find('.whitespace-pre-wrap');
     contentDiv.find('br').replaceWith('\n');
-    return contentDiv.text().trim();
+    return contentDiv.text();
 
   })
   .get();
