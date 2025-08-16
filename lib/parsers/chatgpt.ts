@@ -19,7 +19,7 @@ export async function parseChatGPT(html: string): Promise<Conversation> {
     if(answers[i]) merged.push(answers[i]);
 
   }
-  const content = merged.join('\n');
+  const content = merged.join('/n/n/n');
 
   return {
     model: 'ChatGPT',
