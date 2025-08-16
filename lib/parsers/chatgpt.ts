@@ -7,13 +7,19 @@ import type { Conversation } from '@/types/conversation';
 export async function parseChatGPT(html: string): Promise<Conversation> {
   const $ = cheerio.load(html);
 
-  const question = $('[data-testid^="conversation-turn-1"]')
+  const questions = $('[data-testid^="conversation-turn-1"]')
   .map((_, el) => $(el).text().trim())
   .get();
+  const answers = $('[data-testid^="conversation-turn-2"]')
+  .map((_, el) => $(el).text().trim())
+  .get();
+  const merged = [];
+  for (let i = 0; i < Math.max(questions.length, answers.length); i++){
+    if(questions[i]) merged.push(questions[i]);
+    if(answers[i]) merged.push(answers[i]);
 
-  const content = question.join('\n');
-  console.log(content);
-
+  }
+  const content = merged.join('\n');
 
   return {
     model: 'ChatGPT',
