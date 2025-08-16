@@ -10,7 +10,6 @@ export async function parseChatGPT(html: string): Promise<Conversation> {
   const conversation = $('[data-testid^="conversation-turn"]')
   .map((_, el) => {
     const contentDiv = $(el).find('.whitespace-pre-wrap');
-    contentDiv.find('br').replaceWith('\n');
     return contentDiv.text();
 
   })
