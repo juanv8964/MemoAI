@@ -1,9 +1,6 @@
 import express from 'express';
 import bodyParser from 'body-parser';
 import cors from 'cors';
-import { createConversationRecord} from '@/lib/db/conversations';
-import { S3Client } from '@/lib/storage/s3';
-import { type } from 'express/lib/response';
 
 const app = express();
 const PORT = 8000;
@@ -99,7 +96,6 @@ const toolSchemas = [
     content: { type: 'string', description: 'Conversation content to save to s3'},
   }
   },
-  require:{content}
   }
 ];
 
