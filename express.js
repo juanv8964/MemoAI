@@ -1,7 +1,10 @@
 import express from 'express';
 import bodyParser from 'body-parser';
 import cors from 'cors';
-
+// helps uploading our object into s3
+import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
+import { randomUUID } from 'crypto';
+const s3 = new S3Client({region: process.env.AWS_REGION});
 const app = express();
 const PORT = 8000;
 
@@ -40,12 +43,20 @@ const tools = {
     }
     return `Result: ${args.a * args.b}`;
   },
-
   saveconversation: async (args) => {
     const { content } = args || {};
-    if(typeof content !== 'string' || content.trim()){
+    if(typeof content !== 'string' || !content.trim()){
       throw new Error('content must be a string and not be empty');
     }
+    const key = `conversations/${randomUUID()}.html`;
+    await s3.send(new PutObjectCommand({
+      Bucket: process.env.AWS_BUCKET_NAME,
+      Key:key,
+      Body:content,
+      ContentType: 'text/html',
+    }));
+    const url = `http://${process.env.AWS_BUCKET_NAME}.s3-website-${process.env.AWS_REGION}.amazonaws.com/${key}`;
+    return `sucessfully saved conversation to my website: ${url}`;
     
   }
 };
@@ -89,13 +100,15 @@ const toolSchemas = [
   },
   {
   name: 'saveconversation',
-  description: 'Save a conversation to my s3',
+  description: 'Save a conversation to my memoai website',
   inputSchema: {
   type: 'object',
   properties: {
-    content: { type: 'string', description: 'Conversation content to save to s3'},
-  }
+    content: { type: 'string', description: 'save this conversation to my memoai website for display'},
+    model: {type: 'string', description: 'name the model that is being used as claude'}
   },
+  required:["content"]
+  }
   }
 ];
 
