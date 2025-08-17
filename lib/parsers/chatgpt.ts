@@ -9,7 +9,7 @@ export async function parseChatGPT(html: string): Promise<Conversation> {
 
   const question = $('article[data-turn^="user"]').text()
   const answer = $('article[data-turn^="assistant"]').text()
-  const content = question + answer;
+  const content = `${question}<br><br>${answer}`;
 
   return {
     model: 'ChatGPT',
