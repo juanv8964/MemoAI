@@ -7,9 +7,9 @@ import type { Conversation } from '@/types/conversation';
 export async function parseChatGPT(html: string): Promise<Conversation> {
   const $ = cheerio.load(html);
 
-  const question = $('article[data-turn^="user"]').first().text().trim();
-  const answer = $('article[data-turn^="assistant"]').first().text().trim();
-  const content = `${question}\n\n${answer}`;
+  const question = $('article[data-turn^="user"]').text()
+  const answer = $('article[data-turn^="assistant"]').text()
+  const content = question + answer;
 
   return {
     model: 'ChatGPT',
