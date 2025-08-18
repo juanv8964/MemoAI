@@ -44,10 +44,14 @@ const tools = {
     return `Result: ${args.a * args.b}`;
   },
   saveconversation: async (args) => {
-    const { content } = args || {};
-    if(typeof content !== 'string' || !content.trim()){
-      throw new Error('content must be a string and not be empty');
+    let { content } = args || {};
+    if(typeof content !== 'string'){
+      content = JSON.stringify(content, null,2);
     }
+    if(!content.trim()){
+      throw new Error('content must not be empty');
+    }
+    try {
     const key = `conversations/${randomUUID()}.html`;
     await s3.send(new PutObjectCommand({
       Bucket: process.env.AWS_BUCKET_NAME,
@@ -57,8 +61,11 @@ const tools = {
     }));
     const url = `http://${process.env.AWS_BUCKET_NAME}.s3-website-${process.env.AWS_REGION}.amazonaws.com/${key}`;
     return `sucessfully saved conversation to my website: ${url}`;
-    
+  } catch(err) {
+    console.error('saveconversation error:', err);
+    throw new Error('Failed to save conversation: ${err.message}');
   }
+  },
 };
 
 // Tool schemas
@@ -107,7 +114,7 @@ const toolSchemas = [
     content: { type: 'string', description: 'save this conversation to my memoai website for display'},
     model: {type: 'string', description: 'name the model that is being used as claude'}
   },
-  required:["content"]
+  required:['content']
   }
   }
 ];
