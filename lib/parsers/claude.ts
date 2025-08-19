@@ -5,7 +5,6 @@ import type { Conversation } from '@/types/conversation';
  * Extracts a Claude share page into a structured Conversation.
  */
 export async function parseClaude(html: string): Promise<Conversation> {
-  const $ = cheerio.load(html);
   
   return {
     model: 'Claude',
