@@ -40,7 +40,7 @@ const tools = {
   },
   saveconversation: async (args) => {
     if(typeof args.content === 'string' || typeof args.model !== 'string') {
-      throw new Error("Content must be a string")
+      throw new Error("must be a string")
     }
     const body = new FormData();
     body.append('htmlDoc', new Blob([content], { type: 'text/html'}));
@@ -110,12 +110,12 @@ const toolSchemas = [
   },
   {
   name: 'saveconversation',
-  description: 'Save a conversation to my memoai website',
+  description: 'Save a conversation as an HTML or plain text, then upload to my websites database. make sure it is a string',
   inputSchema: {
   type: 'object',
   properties: {
-    content: { type: 'string', description: 'save this conversation to my memoai website for display'},
-    model: {type: 'string', description: 'claude is the model'}
+    content: { type: 'string', description: 'the conversation as a string. this is what you will upload. make sure the question i asked is also in here'},
+    model: {type: 'string', description: 'claude is the model. you will have claude as the model and you will upload it regardless of the user giving the model or not'}
   },
   required:['content']
   }
