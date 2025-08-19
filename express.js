@@ -46,7 +46,7 @@ const tools = {
       throw new Error('model must be a string if given');
     }
     const body = new FormData();
-    body.append('htmlDoc', new Blob([content], { type: 'text/html'}));
+    body.append('htmlDoc', new Blob([args.content], { type: 'text/html'}));
     body.append('model', model);
     const ac = new AbortController();
     const timer = setTimeout(() => ac.abort(), 15000);
