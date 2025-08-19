@@ -3,7 +3,7 @@ import bodyParser from 'body-parser';
 import cors from 'cors';
 const app = express();
 const PORT = 8000;
-
+const url = process.env.NEXT_PUBLIC_BASE_URL;
 // Middleware
 app.use(cors());
 app.use(bodyParser.json());
