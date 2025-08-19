@@ -39,7 +39,8 @@ const tools = {
     return `Result: ${args.a * args.b}`;
   },
   saveconversation: async (args = {}) => {
-    const { content, model = 'Claude' } = args;
+    const content = args.content;
+    const model = args.model ?? 'Claude';
     if(typeof content !== 'string'){
       throw new Error('content must be a string')
     }
