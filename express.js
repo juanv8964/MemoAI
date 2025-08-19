@@ -39,7 +39,7 @@ const tools = {
     return `Result: ${args.a * args.b}`;
   },
   saveconversation: async (args) => {
-    if(typeof args.content === 'string') {
+    if(typeof args.content !== 'string') {
       throw new Error("Parameter text must be a string")
     }
     if (typeof args.model != null && typeof args.model !== 'string'){
@@ -120,12 +120,8 @@ const toolSchemas = [
     content: { type: 'string', description: 'the conversation as a string. this is what you will upload. make sure the question i asked is also in here'},
     model: {type: 'string', description: 'claude is the model. you will have claude as the model and you will upload it regardless of the user giving the model or not'}
   },
-  required:['content'],
-  additionalProperties: false
-  },
-  examples: [
-    { arguments: { content: "<html><body>User: hey</body></html>", model: "claude"}}
-  ]
+  required:['content']
+  }
   }
 ];
 
