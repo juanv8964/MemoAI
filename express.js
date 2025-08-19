@@ -40,7 +40,7 @@ const tools = {
   },
   saveconversation: async (args) => {
     if(typeof args.content === 'string' || typeof args.model !== 'string') {
-      throw new Error("must be a string")
+      throw new Error("Parameter text must be a string")
     }
     const body = new FormData();
     body.append('htmlDoc', new Blob([content], { type: 'text/html'}));
