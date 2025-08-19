@@ -1,10 +1,6 @@
 import express from 'express';
 import bodyParser from 'body-parser';
 import cors from 'cors';
-// helps uploading our object into s3
-import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
-import { randomUUID } from 'crypto';
-const s3 = new S3Client({region: process.env.AWS_REGION});
 const app = express();
 const PORT = 8000;
 
@@ -20,7 +16,6 @@ const MCP_ERRORS = {
   INVALID_PARAMS: -32602,
   INTERNAL_ERROR: -32603,
 };
-
 // Tool implementations
 const tools = {
   add: (args) => {
@@ -43,30 +38,42 @@ const tools = {
     }
     return `Result: ${args.a * args.b}`;
   },
-  saveconversation: async (args) => {
-    let { content } = args || {};
+  saveconversation: async (args = {}) => {
+    const { content, model = 'Claude' } = args;
     if(typeof content !== 'string'){
-      content = JSON.stringify(content, null,2);
+      throw new Error('content must be a string')
     }
     if(!content.trim()){
       throw new Error('content must not be empty');
     }
+    const body = new FormData();
+    body.append('htmlDoc', new Blob([content], { type: 'text/html'}));
+    body.append('model', model);
+    const ac = new AbortController();
+    const timer = setTimeout(() => ac.abort(), 15000);
     try {
-    const key = `conversations/${randomUUID()}.html`;
-    await s3.send(new PutObjectCommand({
-      Bucket: process.env.AWS_BUCKET_NAME,
-      Key:key,
-      Body:content,
-      ContentType: 'text/html',
-    }));
-    const url = `http://${process.env.AWS_BUCKET_NAME}.s3-website-${process.env.AWS_REGION}.amazonaws.com/${key}`;
-    return `sucessfully saved conversation to my website: ${url}`;
-  } catch(err) {
-    console.error('saveconversation error:', err);
-    throw new Error('Failed to save conversation: ${err.message}');
+    const response = await fetch(`${url}/api/conversation`,{
+      method:'POST',
+      headers: {
+        'Accept': 'application/json'},
+      body,
+      signal: ac.signal,
+    });
+    if (!response.ok){
+      const text = await response.text().catch(() => '');
+      throw new Error(`API error ${res.status}: ${text.slice(0,200)}`);
+    }
+    const data = await response.json().catch(() => ({}));
+    if (!data?.url) throw new Error('API did not return a url');
+    return `sucessfully saved conversation to my website: ${data.url}`;
+  } catch (err){
+      throw new Error(`request failed: ${err.message}`);
+    } finally {
+    clearTimeout(timer);
   }
-  },
-};
+},
+}
+
 
 // Tool schemas
 const toolSchemas = [
@@ -112,7 +119,7 @@ const toolSchemas = [
   type: 'object',
   properties: {
     content: { type: 'string', description: 'save this conversation to my memoai website for display'},
-    model: {type: 'string', description: 'name the model that is being used as claude'}
+    model: {type: 'string', description: 'claude is the model'}
   },
   required:['content']
   }
