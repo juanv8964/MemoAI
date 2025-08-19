@@ -47,7 +47,7 @@ const tools = {
     }
     const body = new FormData();
     body.append('htmlDoc', new Blob([args.content], { type: 'text/html'}));
-    body.append('model', model);
+    body.append('model', String(args.model ?? 'claude'));
     const ac = new AbortController();
     const timer = setTimeout(() => ac.abort(), 15000);
     try {
