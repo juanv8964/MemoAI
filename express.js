@@ -42,7 +42,7 @@ const tools = {
     if(typeof args.content !== 'string') {
       throw new Error("Parameter text must be a string")
     }
-    if (typeof args.model != null && typeof args.model !== 'string'){
+    if (args.model != null && typeof args.model !== 'string'){
       throw new Error('model must be a string if given');
     }
     const body = new FormData();
@@ -59,12 +59,12 @@ const tools = {
       signal: ac.signal,
     });
     if (!response.ok){
-      const text = await response.text().catch(() => '');
       throw new Error(`API error ${res.status}: ${text.slice(0,200)}`);
     }
-    const data = await response.json().catch(() => ({}));
-    if (!data?.url) throw new Error('API did not return a url');
+    const data = await response.json();
+    if (data.url){
     return `sucessfully saved conversation to my website: ${data.url}`;
+    }
   } catch (err){
       throw new Error(`request failed: ${err.message}`);
     } finally {
