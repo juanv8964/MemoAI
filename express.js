@@ -120,8 +120,12 @@ const toolSchemas = [
     content: { type: 'string', description: 'the conversation as a string. this is what you will upload. make sure the question i asked is also in here'},
     model: {type: 'string', description: 'claude is the model. you will have claude as the model and you will upload it regardless of the user giving the model or not'}
   },
-  required:['content']
-  }
+  required:['content'],
+  additionalProperties: false
+  },
+  examples: [
+    { arguments: { content: "<html><body>User: hey</body></html>", model: "claude"}}
+  ]
   }
 ];
 
