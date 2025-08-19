@@ -62,7 +62,7 @@ export async function POST(req: NextRequest) {
   try {
     // Initialize services on first request
     await ensureInitialized();
-
+    
     const formData = await req.formData();
     const file = formData.get('htmlDoc');
     const model = formData.get('model')?.toString() ?? 'ChatGPT';
