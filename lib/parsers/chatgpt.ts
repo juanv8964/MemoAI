@@ -10,7 +10,7 @@ border-radius: 8px;
 color: #ECECF1;
 padding: 12px 16px;
 margin: 8px 0;
-max-width: 70%;`;
+max-width: 80%;`;
 const css1 = `background-color: #343541;
 float:right;
 clear: both;
@@ -18,8 +18,8 @@ color: #FFFFFF;
 border-radius: 8px;
 padding: 12px 16px;
 margin: 8px 0;
-margin-top: 12px;
-max-width: 70%;`
+margin-top: 24px;
+max-width: 80%;`
 
 export async function parseChatGPT(html: string): Promise<Conversation> {
   const $ = cheerio.load(html);
