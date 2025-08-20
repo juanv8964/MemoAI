@@ -17,7 +17,8 @@ clear: both;
 color: #FFFFFF;
 border-radius: 8px;
 padding: 12px 16px;
-margin: 8px 0;
+margin: 8px;
+margin-top: 12px;
 max-width: 80%;`
 
 export async function parseChatGPT(html: string): Promise<Conversation> {
