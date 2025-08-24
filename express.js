@@ -45,31 +45,26 @@ const tools = {
     if (args.model != null && typeof args.model !== 'string'){
       throw new Error('model must be a string if given');
     }
+    // let format = args.content.replace(/User:/g, '<br><br>User:').replace(/Claude:/g, '<br><br>Claude:');
     const body = new FormData();
     body.append('htmlDoc', new Blob([args.content], { type: 'text/html'}));
     body.append('model', String(args.model ?? 'claude'));
-    const ac = new AbortController();
-    const timer = setTimeout(() => ac.abort(), 15000);
     try {
     const response = await fetch(`${url}/api/conversation`,{
       method:'POST',
-      headers: {
-        'Accept': 'application/json'},
+      headers: {'Accept': 'application/json'},
       body,
-      signal: ac.signal,
     });
     if (!response.ok){
-      throw new Error(`API error ${res.status}: ${text.slice(0,200)}`);
+      throw new Error(`API error ${response.status}`);
     }
     const data = await response.json();
     if (data.url){
-    return `sucessfully saved conversation to my website: ${data.url}`;
+    return `sucessfully saved conversation to my website`;
     }
   } catch (err){
       throw new Error(`request failed: ${err.message}`);
-    } finally {
-    clearTimeout(timer);
-  }
+    }
 },
 }
 
@@ -113,11 +108,11 @@ const toolSchemas = [
   },
   {
   name: 'saveconversation',
-  description: 'Save a conversation as an HTML or plain text, then upload to my websites database. make sure it is a string',
+  description: 'Save a conversation as an HTML or plain text, then upload to my websites database. style it and add a break line between the content and what the model is.',
   inputSchema: {
   type: 'object',
   properties: {
-    content: { type: 'string', description: 'the conversation as a string. this is what you will upload. make sure the question i asked is also in here'},
+    content: { type: 'string', description: 'the conversation you are going to save to my website'},
     model: {type: 'string', description: 'claude is the model. you will have claude as the model and you will upload it regardless of the user giving the model or not'}
   },
   required:['content']
