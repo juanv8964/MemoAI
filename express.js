@@ -45,9 +45,8 @@ const tools = {
     if (args.model != null && typeof args.model !== 'string'){
       throw new Error('model must be a string if given');
     }
-    // let format = args.content.replace(/User:/g, '<br><br>User:').replace(/Claude:/g, '<br><br>Claude:');
     const body = new FormData();
-    body.append('htmlDoc', new Blob([args.content], { type: 'text/plain; charset=utf-8'}));
+    body.append('htmlDoc', new Blob([args.content], { type: 'text/html'}));
     body.append('model', String(args.model ?? 'claude'));
     try {
     const response = await fetch(`${url}/api/conversation`,{
@@ -108,7 +107,7 @@ const toolSchemas = [
   },
   {
   name: 'saveconversation',
-  description: 'Save a conversation as plain text, then upload to my websites database. style it and add a break line between the content and what the model is.',
+  description: 'Save a conversation upload to my websites database. style it and add a break line between the content and what the model is.',
   inputSchema: {
   type: 'object',
   properties: {
